@@ -1,0 +1,16 @@
+# A checkout flag ramped to 10%. The buckets below are the real ones.
+12:01:02.100 checkout start customer=noa
+12:01:02.110 flag check event flag=checkout-v2 variant=treatment bucket=0 ramp=10
+12:01:02.400 checkout fail error=timeout
+12:04:11.000 checkout start customer=bea
+12:04:11.010 flag check event flag=checkout-v2 variant=control bucket=17 ramp=10
+12:04:11.200 checkout stop status=200
+12:07:40.000 checkout start customer=ada
+12:07:40.020 flag check event flag=checkout-v2 variant=control bucket=57 ramp=10
+12:07:40.180 checkout stop status=200
+12:09:05.000 checkout start customer=quinn
+12:09:05.010 flag check event flag=checkout-v2 variant=treatment bucket=8 ramp=10
+12:09:05.300 checkout stop status=200
+# This request was never flagged, so it counts for neither variant.
+12:11:30.000 checkout start customer=eda
+12:11:30.200 checkout fail error=declined
