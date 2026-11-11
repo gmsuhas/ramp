@@ -1,10 +1,10 @@
 """Read the lines back and say whether the treatment is the one failing.
 
-A `flag check` event marks the span that is open around it, which is the
-innermost open span, the same span a trace would attach the event to. The
-mark belongs to one flag. A later `fail` of that span counts against the
-variant. A request with no flag line is left out: an unknown variant is not
-the control.
+A `feature_flag` event marks the span that is open around it, which
+is the innermost open span, the same span a trace would attach the event
+to. The mark belongs to one flag. A later `fail` of that span counts
+against the variant. A request with no flag line is left out: an unknown
+variant is not the control.
 """
 
 from __future__ import annotations
@@ -39,11 +39,11 @@ def summarize(events, flag):
             if span is not None and span.variant is not None:
                 tally.add(span.variant, failed=(event.phase == "fail"))
             continue
-        if event.name != "flag check" or not open_spans:
+        if event.name != "feature_flag" or not open_spans:
             continue
-        if event.attributes.get("flag") != flag:
+        if event.attributes.get("feature_flag.key") != flag:
             continue
-        variant = event.attributes.get("variant")
+        variant = event.attributes.get("feature_flag.result.variant")
         if variant not in ("control", "treatment"):
             continue
         open_spans[-1].variant = variant

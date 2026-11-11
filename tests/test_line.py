@@ -10,10 +10,10 @@ class LineTests(unittest.TestCase):
         decision = assign("checkout-v2", "ada", 10)
         line = format_line("12:01:02.100", decision)
         event = parse_log(line)[0]
-        self.assertEqual(event.name, "flag check")
+        self.assertEqual(event.name, "feature_flag")
         self.assertEqual(event.phase, "event")
-        self.assertEqual(event.attributes["flag"], "checkout-v2")
-        self.assertEqual(event.attributes["variant"], "control")
+        self.assertEqual(event.attributes["feature_flag.key"], "checkout-v2")
+        self.assertEqual(event.attributes["feature_flag.result.variant"], "control")
         self.assertEqual(event.attributes["bucket"], "57")
 
     def test_a_comment_and_a_blank_line_are_skipped(self):

@@ -27,13 +27,21 @@ checkout-v2  variant=control  bucket=57  ramp=10
 `line` prints the same decision as one event:
 
 ```text
-12:01:02.100 flag check event flag=checkout-v2 variant=control bucket=57 ramp=10
+12:01:02.100 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=control feature_flag.result.reason=split bucket=57 ramp=10
 ```
 
-That is a clock, a name, a phase, and `key=value` attributes, which is the
-line [otl](https://github.com/gmsuhas/otl) reads as a point in time on the
-innermost span that was open around it. Drop it into a request log and the
-variant sits on the same span as whatever the request did next.
+That is a clock, a name, a phase, and `key=value` attributes. The event
+name `feature_flag`, and the attributes `feature_flag.key` and
+`feature_flag.result.variant`, are the ones the
+[OpenTelemetry feature-flag registry](https://opentelemetry.io/docs/specs/semconv/registry/attributes/feature-flag/)
+records on a span. `feature_flag.result.reason=split` is the registry's
+word for a value chosen by pseudorandom assignment, which is what the
+bucket is. `bucket` and `ramp` are extra, so the line still says which
+number the identity landed on and which percentage was in force.
+
+[otl](https://github.com/gmsuhas/otl) reads the same line as a point in time
+on the innermost span that was open around it. Drop it into a request log
+and the variant sits on the same span as whatever the request did next.
 
 ## The rule
 
@@ -66,9 +74,10 @@ control       2 requests     0 failed    0.0%
 treatment     2 requests     1 failed   50.0%
 ```
 
-The report pairs a flag event with the innermost span that was open around
-it, the same span a trace would attach the event to, and a `fail` of that
-span counts against the variant. A second flag in the same log is ignored.
+The report pairs a `feature_flag` event with the innermost span that was
+open around it, the same span a trace would attach the event to, and a
+`fail` of that span counts against the variant. A second flag in the same
+log is ignored.
 The report does not fetch a metric and it does not decide the ramp for you.
 It says which variant failed, so the next move, roll forward or roll back,
 is made on the same day as the deploy.
@@ -77,8 +86,8 @@ is made on the same day as the deploy.
 
 [OpenFeature](https://openfeature.dev) is the standard for recording a flag
 evaluation, and the vendors behind it already serve the flags. ramp does
-not replace either one. It writes the one line that connects an evaluation
-to a trace, and it reads that line back.
+not replace either one. It writes the evaluation as the span event the
+OpenTelemetry registry already names, and it reads that line back.
 
 [otl](https://github.com/gmsuhas/otl) turns the log into one trace. ramp
 does not: it writes a line otl already understands, and a report a person

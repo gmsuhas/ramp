@@ -31,7 +31,7 @@ class ReportTests(unittest.TestCase):
 
     def test_a_flag_outside_a_request_counts_nothing(self):
         rows = summarize(
-            parse_log("12:00:00.000 flag check event flag=checkout-v2 variant=treatment\n"),
+            parse_log("12:00:00.000 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=treatment\n"),
             FLAG,
         )
         self.assertEqual(rows, {})
@@ -40,7 +40,7 @@ class ReportTests(unittest.TestCase):
         log = (
             "12:00:00.000 checkout start\n"
             "12:00:00.010 pay start\n"
-            "12:00:00.020 flag check event flag=checkout-v2 variant=treatment\n"
+            "12:00:00.020 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=treatment\n"
             "12:00:00.030 pay stop\n"
             "12:00:00.040 checkout fail error=timeout\n"
         )
@@ -52,9 +52,9 @@ class ReportTests(unittest.TestCase):
         log = (
             "12:00:00.000 checkout start customer=a\n"
             "12:00:00.100 checkout start customer=b\n"
-            "12:00:00.110 flag check event flag=checkout-v2 variant=treatment\n"
+            "12:00:00.110 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=treatment\n"
             "12:00:00.120 checkout fail error=timeout customer=b\n"
-            "12:00:00.200 flag check event flag=checkout-v2 variant=control\n"
+            "12:00:00.200 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=control\n"
             "12:00:00.210 checkout stop customer=a\n"
         )
         rows = summarize(parse_log(log), FLAG)
@@ -64,14 +64,14 @@ class ReportTests(unittest.TestCase):
     def test_an_unclosed_span_is_not_counted(self):
         log = (
             "12:00:00.000 checkout start\n"
-            "12:00:00.010 flag check event flag=checkout-v2 variant=treatment\n"
+            "12:00:00.010 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=treatment\n"
         )
         self.assertEqual(summarize(parse_log(log), FLAG), {})
 
     def test_a_second_flag_is_left_out(self):
         log = (
             "12:00:00.000 checkout start\n"
-            "12:00:00.010 flag check event flag=pricing-v1 variant=treatment\n"
+            "12:00:00.010 feature_flag event feature_flag.key=pricing-v1 feature_flag.result.variant=treatment\n"
             "12:00:00.020 checkout fail error=timeout\n"
         )
         self.assertEqual(summarize(parse_log(log), FLAG), {})
@@ -79,7 +79,7 @@ class ReportTests(unittest.TestCase):
     def test_an_unknown_variant_is_skipped(self):
         log = (
             "12:00:00.000 checkout start\n"
-            "12:00:00.010 flag check event flag=checkout-v2 variant=holdout\n"
+            "12:00:00.010 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=holdout\n"
             "12:00:00.020 checkout fail error=timeout\n"
         )
         self.assertEqual(summarize(parse_log(log), FLAG), {})
@@ -88,7 +88,7 @@ class ReportTests(unittest.TestCase):
         log = (
             "12:00:00.000 checkout start\n"
             "12:00:00.010 checkout start\n"
-            "12:00:00.020 flag check event flag=checkout-v2 variant=treatment\n"
+            "12:00:00.020 feature_flag event feature_flag.key=checkout-v2 feature_flag.result.variant=treatment\n"
             "12:00:00.030 checkout stop\n"
             "12:00:00.040 checkout fail error=timeout\n"
         )
