@@ -1,14 +1,16 @@
 # ramp
 
-Decide which variant a request gets, and write the decision on one line.
+Know the same day whether the new version is the one failing.
 
-A feature flag answers a question at the moment of the request. A trace
-answers it afterwards, when someone wants to know whether the new path is
-the one failing. The two usually live in different systems, owned by
-different people, so the answer comes back late. ramp puts the decision on
-the request, in the form a trace already reads.
+**TLDR.** A rollout reaches some customers and not others. When something
+breaks, the flag lives in one system and the errors live in another, so the
+safe move is to undo the whole launch. ramp writes the version onto the
+request and counts the failures. Nothing to install beyond Python 3.9.
 
-Nothing to install beyond Python 3.9.
+Read this if you ship to a fraction of customers and find out too late
+which version broke. It will not choose the percentage, and it will not
+tell you the new version won. A handful of failures is a reason to look,
+not a verdict.
 
 ## Try it
 
